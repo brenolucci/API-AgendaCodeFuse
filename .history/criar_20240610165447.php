@@ -1,0 +1,4 @@
+<?php
+include 'db.php';
+
+$nome = $email = $telefone = $ddi

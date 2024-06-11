@@ -1,0 +1,19 @@
+<?php
+header('Content-Type: application/json');
+
+include 'db.php';
+
+$sql = "SELECT * FROM pessoas";
+$result = $conn->query($sql);
+
+$pessoas = array();
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $pessoas[] = $row;
+    }
+}
+
+echo json_encode($pessoas);
+
+$conn->close();
+?>

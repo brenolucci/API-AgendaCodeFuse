@@ -1,0 +1,3 @@
+<?php 
+$nomeServidor = "localhost";
+$nomeUsuario = "";
