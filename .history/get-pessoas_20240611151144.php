@@ -5,7 +5,6 @@ header('Content-Type: application/json');
 
 include 'db.php';
 
-
 $sql = "SELECT * FROM pessoas";
 $result = $conn->query($sql);
 

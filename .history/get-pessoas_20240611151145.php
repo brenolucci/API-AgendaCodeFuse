@@ -5,7 +5,6 @@ header('Content-Type: application/json');
 
 include 'db.php';
 
-
 $sql = "SELECT * FROM pessoas";
 $result = $conn->query($sql);
 
@@ -15,7 +14,7 @@ if ($result->num_rows > 0) {
         $pessoas[] = $row;
     }
 }
-$conn->close();
 
+$conn->close();
 echo json_encode($pessoas);
 
