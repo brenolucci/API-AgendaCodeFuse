@@ -23,27 +23,22 @@ try {
     $conn->close();
 
     $statusCode = 200;
-    $result = [
-        'error' => false,
-        'totalRecords' => getTotalRecords(),
-        'data' => $data,
-    ];
+    $message = '';
+    $error = false;
 
 } catch (\InvalidArgumentException $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
+    $error = true;
+    $statusCode = $e->getCode();
+    $message = $e->getMessage();
 
 } catch (\Exception $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
+    $error = true;
+    $statusCode = $e->getCode();
+    $message = $e->getMessage();
 }
 
 http_response_code($statusCode);
-echo json_encode($result);
+echo json_encode($);
 
 
 function validateQueryParams(array $params)
@@ -146,21 +141,4 @@ function getSqlStatement(): string
     }
 
     return $sql . ' LIMIT ' . getPagina() . ', ' . getQuantidade();
-}
-
-/**
- * Retorna o total de registros da consulta com base nas condições e filtros informados
- *
- * @return int
- */
-function getTotalRecords(): int
-{
-    $sql = 'SELECT COUNT(id) FROM pessoas';
-
-    $conditions = getConditions();
-    if (!empty($conditions)) {
-        $sql .= $conditions;
-    }
-
-    return 12;//
 }

@@ -5,46 +5,48 @@ header('Content-Type: application/json');
 
 include 'db.php';
 
-$data = [];
 try {
 
-    $sql = getSqlStatement();
+} catch (\InvalidArgumentException $e) {
+} catch (\Exception $e) {
 
+    $conditions = [];
+    
+    $sql = "SELECT * FROM pessoas";
+    if (isset($_GET['nome'])) {
+        $conditions[] = 'nome LIKE "%' . escapeParam($_GET['nome']) . '%"';
+    }
+    
+    if (!empty($conditions)) {
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+    }
+    // 
+    $offset = getPagina();
+    $limite = getQuantidade();
+    
+    $sql .= " LIMIT {$offset}, {$limite}";
+    
     $result = $conn->query($sql);
-
+    
     $limit = 20;
-
-    $data = [];
+    
+    $pessoas = array();
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
+            $pessoas[] = $row;
         }
     }
-    $conn->close();
-
+    
     $statusCode = 200;
-    $result = [
-        'error' => false,
-        'totalRecords' => getTotalRecords(),
-        'data' => $data,
-    ];
-
-} catch (\InvalidArgumentException $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
-
-} catch (\Exception $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
+    
+    $conn->close();
 }
 
 http_response_code($statusCode);
-echo json_encode($result);
-
+echo json_encode([
+    'error' => false,
+    'data' => $pessoas
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
 function validateQueryParams(array $params)
 {
@@ -101,27 +103,6 @@ function getPagina(): int
 }
 
 /**
- * Valida as query params e retorna a instrução WHERE com as condições de pesquisa
- *
- * @return string
- */
-function getConditions(): string
-{
-    $sql = '';
-    $conditions = [];
-
-    if (isset($_GET['nome'])) {
-        $conditions[] = 'nome LIKE "%' . escapeParam($_GET['nome']) . '%"';
-    }
-
-    if (!empty($conditions)) {
-        $sql = ' WHERE ' . implode(' AND ', $conditions);
-    }
-
-    return $sql;
-}
-
-/**
  * Calcula o total de páginas
  *
  * @return int
@@ -129,38 +110,4 @@ function getConditions(): string
 function totalPaginas(): int
 {
     return 100;// Calcular o total da página
-}
-
-/**
- * Retorna o SQL da consulta
- *
- * @return string
- */
-function getSqlStatement(): string
-{
-    $sql = 'SELECT id, nome, ddi, ddd, telefone, email FROM pessoas';
-
-    $conditions = getConditions();
-    if (!empty($conditions)) {
-        $sql .= $conditions;
-    }
-
-    return $sql . ' LIMIT ' . getPagina() . ', ' . getQuantidade();
-}
-
-/**
- * Retorna o total de registros da consulta com base nas condições e filtros informados
- *
- * @return int
- */
-function getTotalRecords(): int
-{
-    $sql = 'SELECT COUNT(id) FROM pessoas';
-
-    $conditions = getConditions();
-    if (!empty($conditions)) {
-        $sql .= $conditions;
-    }
-
-    return 12;//
 }

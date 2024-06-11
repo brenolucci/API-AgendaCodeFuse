@@ -25,21 +25,20 @@ try {
     $statusCode = 200;
     $result = [
         'error' => false,
-        'totalRecords' => getTotalRecords(),
         'data' => $data,
+        'totalRecords' => getTotalRecords(),
     ];
 
 } catch (\InvalidArgumentException $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
+    $re
+    $error = true;
+    $statusCode = $e->getCode();
+    $message = $e->getMessage();
 
 } catch (\Exception $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
+    $error = true;
+    $statusCode = $e->getCode();
+    $message = $e->getMessage();
 }
 
 http_response_code($statusCode);
@@ -153,7 +152,7 @@ function getSqlStatement(): string
  *
  * @return int
  */
-function getTotalRecords(): int
+function getTotalRecords() : int
 {
     $sql = 'SELECT COUNT(id) FROM pessoas';
 

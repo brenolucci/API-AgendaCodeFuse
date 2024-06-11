@@ -25,8 +25,8 @@ try {
     $statusCode = 200;
     $result = [
         'error' => false,
-        'totalRecords' => getTotalRecords(),
         'data' => $data,
+        'totalRecords' => getTotalRecords(),
     ];
 
 } catch (\InvalidArgumentException $e) {

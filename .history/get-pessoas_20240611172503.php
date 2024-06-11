@@ -8,7 +8,15 @@ include 'db.php';
 $data = [];
 try {
 
-    $sql = getSqlStatement();
+    $sql = "SELECT * FROM pessoas";
+    $conditions = getConditions();
+
+    
+    // 
+    $offset = getPagina();
+    $limite = getQuantidade();
+
+    $sql .= " LIMIT {$offset}, {$limite}";
 
     $result = $conn->query($sql);
 
@@ -23,27 +31,26 @@ try {
     $conn->close();
 
     $statusCode = 200;
-    $result = [
-        'error' => false,
-        'totalRecords' => getTotalRecords(),
-        'data' => $data,
-    ];
+    $message = '';
+    $error = false;
 
 } catch (\InvalidArgumentException $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
+    $error = true;
+    $statusCode = $e->getCode();
+    $message = $e->getMessage();
 
 } catch (\Exception $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
+    $error = true;
+    $statusCode = $e->getCode();
+    $message = $e->getMessage();
 }
 
 http_response_code($statusCode);
-echo json_encode($result);
+echo json_encode([
+    'error' => $error,
+    'message' => $message,
+    'data' => $data
+]);
 
 
 function validateQueryParams(array $params)
@@ -105,9 +112,8 @@ function getPagina(): int
  *
  * @return string
  */
-function getConditions(): string
+function getConditions() : string
 {
-    $sql = '';
     $conditions = [];
 
     if (isset($_GET['nome'])) {
@@ -129,38 +135,4 @@ function getConditions(): string
 function totalPaginas(): int
 {
     return 100;// Calcular o total da página
-}
-
-/**
- * Retorna o SQL da consulta
- *
- * @return string
- */
-function getSqlStatement(): string
-{
-    $sql = 'SELECT id, nome, ddi, ddd, telefone, email FROM pessoas';
-
-    $conditions = getConditions();
-    if (!empty($conditions)) {
-        $sql .= $conditions;
-    }
-
-    return $sql . ' LIMIT ' . getPagina() . ', ' . getQuantidade();
-}
-
-/**
- * Retorna o total de registros da consulta com base nas condições e filtros informados
- *
- * @return int
- */
-function getTotalRecords(): int
-{
-    $sql = 'SELECT COUNT(id) FROM pessoas';
-
-    $conditions = getConditions();
-    if (!empty($conditions)) {
-        $sql .= $conditions;
-    }
-
-    return 12;//
 }

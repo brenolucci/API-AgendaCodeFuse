@@ -8,12 +8,26 @@ include 'db.php';
 $data = [];
 try {
 
-    $sql = getSqlStatement();
-
+    $conditions = [];
+    
+    $sql = "SELECT * FROM pessoas";
+    if (isset($_GET['nome'])) {
+        $conditions[] = 'nome LIKE "%' . escapeParam($_GET['nome']) . '%"';
+    }
+    
+    if (!empty($conditions)) {
+        $sql .= ' WHERE ' . implode(' AND ', $conditions);
+    }
+    // 
+    $offset = getPagina();
+    $limite = getQuantidade();
+    
+    $sql .= " LIMIT {$offset}, {$limite}";
+    
     $result = $conn->query($sql);
-
+    
     $limit = 20;
-
+    
     $data = [];
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
@@ -21,29 +35,24 @@ try {
         }
     }
     $conn->close();
-
+    
     $statusCode = 200;
-    $result = [
-        'error' => false,
-        'totalRecords' => getTotalRecords(),
-        'data' => $data,
-    ];
-
+    $message = '';
+    
 } catch (\InvalidArgumentException $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
-
+    $statusCode = $e->getCode();
+    $message = $e->getMessage();
 } catch (\Exception $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
+    $message = $e->getMessage();
+    $statusCode = $e->getCode();
 }
-
+        
 http_response_code($statusCode);
-echo json_encode($result);
+json_encode([
+    'error' => false,
+    'message' => $message,
+    'data' => $data
+]);
 
 
 function validateQueryParams(array $params)
@@ -101,27 +110,6 @@ function getPagina(): int
 }
 
 /**
- * Valida as query params e retorna a instrução WHERE com as condições de pesquisa
- *
- * @return string
- */
-function getConditions(): string
-{
-    $sql = '';
-    $conditions = [];
-
-    if (isset($_GET['nome'])) {
-        $conditions[] = 'nome LIKE "%' . escapeParam($_GET['nome']) . '%"';
-    }
-
-    if (!empty($conditions)) {
-        $sql = ' WHERE ' . implode(' AND ', $conditions);
-    }
-
-    return $sql;
-}
-
-/**
  * Calcula o total de páginas
  *
  * @return int
@@ -129,38 +117,4 @@ function getConditions(): string
 function totalPaginas(): int
 {
     return 100;// Calcular o total da página
-}
-
-/**
- * Retorna o SQL da consulta
- *
- * @return string
- */
-function getSqlStatement(): string
-{
-    $sql = 'SELECT id, nome, ddi, ddd, telefone, email FROM pessoas';
-
-    $conditions = getConditions();
-    if (!empty($conditions)) {
-        $sql .= $conditions;
-    }
-
-    return $sql . ' LIMIT ' . getPagina() . ', ' . getQuantidade();
-}
-
-/**
- * Retorna o total de registros da consulta com base nas condições e filtros informados
- *
- * @return int
- */
-function getTotalRecords(): int
-{
-    $sql = 'SELECT COUNT(id) FROM pessoas';
-
-    $conditions = getConditions();
-    if (!empty($conditions)) {
-        $sql .= $conditions;
-    }
-
-    return 12;//
 }

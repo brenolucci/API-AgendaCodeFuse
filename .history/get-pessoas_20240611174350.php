@@ -25,21 +25,19 @@ try {
     $statusCode = 200;
     $result = [
         'error' => false,
-        'totalRecords' => getTotalRecords(),
         'data' => $data,
-    ];
+        'totalRecords' => getTotalRecords(),
+    ]
 
 } catch (\InvalidArgumentException $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
+    $error = true;
+    $statusCode = $e->getCode();
+    $message = $e->getMessage();
 
 } catch (\Exception $e) {
-    $result = [
-        'error' => true,
-        'message' => $e->getMessage(),
-    ];
+    $error = true;
+    $statusCode = $e->getCode();
+    $message = $e->getMessage();
 }
 
 http_response_code($statusCode);
@@ -151,16 +149,9 @@ function getSqlStatement(): string
 /**
  * Retorna o total de registros da consulta com base nas condições e filtros informados
  *
- * @return int
+ * @return integer
  */
-function getTotalRecords(): int
+function getTotalRecords() : int
 {
-    $sql = 'SELECT COUNT(id) FROM pessoas';
-
-    $conditions = getConditions();
-    if (!empty($conditions)) {
-        $sql .= $conditions;
-    }
-
     return 12;//
 }
