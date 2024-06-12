@@ -25,7 +25,7 @@ try {
     $statusCode = 200;
     $result = [
         'totalRecords' => getTotalRecords(),
-        'totalPages' => totalPaginas(),
+        'totalPages' => ceil(getTotalRecords() / getQuantidade()),
         'data' => $data,
     ];
 
@@ -128,7 +128,8 @@ function getConditions(): string
  */
 function totalPaginas(): int
 {
-    return ceil(getTotalRecords() / getQuantidade());
+
+    return getTotalRecords() / getQuantidade();// Calcular o total da página
 }
 
 /**

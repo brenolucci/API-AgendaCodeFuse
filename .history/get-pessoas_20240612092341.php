@@ -128,7 +128,7 @@ function getConditions(): string
  */
 function totalPaginas(): int
 {
-    return ceil(getTotalRecords() / getQuantidade());
+    return ceil(getTotalRecords() / getQuantidade());// Calcular o total da página
 }
 
 /**
