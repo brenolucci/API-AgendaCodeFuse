@@ -8,7 +8,7 @@ include 'db.php';
 $data = [];
 try {
 
-    $sql = getSqlStatement($conn);
+    $sql = getSqlStatement();
 
     $result = $conn->query($sql);
 
@@ -20,6 +20,7 @@ try {
             $data[] = $row;
         }
     }
+    $conn->close();
 
     $statusCode = 200;
     $result = [
@@ -29,14 +30,12 @@ try {
     ];
 
 } catch (\InvalidArgumentException $e) {
-    $statusCode = $e->getCode();
     $result = [
         'error' => true,
         'message' => $e->getMessage(),
     ];
 
 } catch (\Exception $e) {
-    $statusCode = $e->getCode();
     $result = [
         'error' => true,
         'message' => $e->getMessage(),
@@ -46,7 +45,6 @@ try {
 http_response_code($statusCode);
 echo json_encode($result);
 
-$conn->close();
 
 function validateQueryParams(array $params)
 {
@@ -96,7 +94,7 @@ function getPagina(mysqli $conn): int
     }
 
     $totalPaginas = totalPaginas($conn);
-    if ($totalPaginas > 0 && $pagina > $totalPaginas) {
+    if ($pagina > $totalPaginas) {
         throw new InvalidArgumentException("Número da página deve terminar em {$totalPaginas}!", 422);
     }
 
@@ -120,10 +118,10 @@ function getConditions(): string
         $conditions[] = 'email LIKE "%' . escapeParam($_GET['email']) . '%"';
     }
     if (!empty($_GET['ddi'])) {
-        $conditions[] = 'ddi = ' . escapeParam($_GET['ddi']);
+        $conditions[] = 'ddi LIKE "%' . escapeParam($_GET['ddi']) . '%"';
     }
     if (!empty($_GET['ddd'])) {
-        $conditions[] = 'ddd = ' . escapeParam($_GET['ddd']);
+        $conditions[] = 'ddd LIKE "%' . escapeParam($_GET['ddd']) . '%"';
     }
     if (!empty($_GET['telefone'])) {
         $conditions[] = 'telefone LIKE "%' . escapeParam($_GET['telefone']) . '%"';
@@ -173,14 +171,20 @@ function getSqlStatement(mysqli $conn): string
  */
 function getTotalRecords(mysqli $conn): int
 {
-    $sql = 'SELECT COUNT(id) AS total FROM pessoas';
+    $sql = 'SELECT COUNT(id) FROM pessoas';
 
     $conditions = getConditions();
     if (!empty($conditions)) {
         $sql .= $conditions;
     }
     $result = $conn->query($sql);
-    $row = $result->fetch_assoc();
-
-    return $row["total"];
+    
+    $data = [];
+    if ($result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+    $conn->close();
+    return 12;//
 }

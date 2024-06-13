@@ -8,7 +8,7 @@ include 'db.php';
 $data = [];
 try {
 
-    $sql = getSqlStatement($conn);
+    $sql = getSqlStatement();
 
     $result = $conn->query($sql);
 
@@ -20,23 +20,22 @@ try {
             $data[] = $row;
         }
     }
+    $conn->close();
 
     $statusCode = 200;
     $result = [
-        'totalRecords' => getTotalRecords($conn),
-        'totalPages' => totalPaginas($conn),
+        'totalRecords' => getTotalRecords(),
+        'totalPages' => totalPaginas(),
         'data' => $data,
     ];
 
 } catch (\InvalidArgumentException $e) {
-    $statusCode = $e->getCode();
     $result = [
         'error' => true,
         'message' => $e->getMessage(),
     ];
 
 } catch (\Exception $e) {
-    $statusCode = $e->getCode();
     $result = [
         'error' => true,
         'message' => $e->getMessage(),
@@ -46,7 +45,6 @@ try {
 http_response_code($statusCode);
 echo json_encode($result);
 
-$conn->close();
 
 function validateQueryParams(array $params)
 {
@@ -75,10 +73,9 @@ function getQuantidade(): int
  * Efetua o cálculo do Offset de acordo com o número da página informada
  * e quantidade de registros desejadas.
  * 
- * @param mysqli $conn
  * @return int
  */
-function getPagina(mysqli $conn): int
+function getPagina(): int
 {
     $defaultPaging = 0;
 
@@ -95,12 +92,12 @@ function getPagina(mysqli $conn): int
         throw new InvalidArgumentException('Número da página deve iniciar em 1!', 422);
     }
 
-    $totalPaginas = totalPaginas($conn);
-    if ($totalPaginas > 0 && $pagina > $totalPaginas) {
+    $totalPaginas = totalPaginas();
+    if ($pagina > $totalPaginas) {
         throw new InvalidArgumentException("Número da página deve terminar em {$totalPaginas}!", 422);
     }
 
-    return ($pagina - 1) * getQuantidade();
+    return ($pagina - 1) * getQuantidade(); // PQ o MySQL inicia em ZERO
 }
 
 /**
@@ -113,19 +110,19 @@ function getConditions(): string
     $sql = '';
     $conditions = [];
 
-    if (!empty($_GET['nome'])) {
+    if (isset($_GET['nome'])) {
         $conditions[] = 'nome LIKE "%' . escapeParam($_GET['nome']) . '%"';
     }
-    if (!empty($_GET['email'])) {
+    if (isset($_GET['email'])) {
         $conditions[] = 'email LIKE "%' . escapeParam($_GET['email']) . '%"';
     }
-    if (!empty($_GET['ddi'])) {
-        $conditions[] = 'ddi = ' . escapeParam($_GET['ddi']);
+    if (isset($_GET['ddi'])) {
+        $conditions[] = 'ddi LIKE "%' . escapeParam($_GET['ddi']) . '%"';
     }
-    if (!empty($_GET['ddd'])) {
-        $conditions[] = 'ddd = ' . escapeParam($_GET['ddd']);
+    if (isset($_GET['ddd'])) {
+        $conditions[] = 'ddd LIKE "%' . escapeParam($_GET['ddd']) . '%"';
     }
-    if (!empty($_GET['telefone'])) {
+    if (isset($_GET['telefone'])) {
         $conditions[] = 'telefone LIKE "%' . escapeParam($_GET['telefone']) . '%"';
     }
 
@@ -138,22 +135,20 @@ function getConditions(): string
 
 /**
  * Calcula o total de páginas
- * 
- * @param mysqli $conn
+ *
  * @return int
  */
-function totalPaginas(mysqli $conn): int
+function totalPaginas(): int
 {
-    return ceil(getTotalRecords($conn) / getQuantidade());
+    return ceil(getTotalRecords() / getQuantidade());
 }
 
 /**
  * Retorna o SQL da consulta
  *
- * @param mysqli $conn
  * @return string
  */
-function getSqlStatement(mysqli $conn): string
+function getSqlStatement(): string
 {
     $sql = 'SELECT id, nome, ddi, ddd, telefone, email FROM pessoas';
 
@@ -162,25 +157,22 @@ function getSqlStatement(mysqli $conn): string
         $sql .= $conditions;
     }
 
-    return $sql . ' LIMIT ' . getPagina($conn) . ', ' . getQuantidade();
+    return $sql . ' LIMIT ' . getPagina() . ', ' . getQuantidade();
 }
 
 /**
- * Retorna o total de registros da consulta com base nas condições e filtros informados,
- * 
- * @param mysqli $conn
+ * Retorna o total de registros da consulta com base nas condições e filtros informados
+ *
  * @return int
  */
-function getTotalRecords(mysqli $conn): int
+function getTotalRecords(): int
 {
-    $sql = 'SELECT COUNT(id) AS total FROM pessoas';
+    $sql = 'SELECT COUNT(id) FROM pessoas';
 
     $conditions = getConditions();
     if (!empty($conditions)) {
         $sql .= $conditions;
     }
-    $result = $conn->query($sql);
-    $row = $result->fetch_assoc();
-
-    return $row["total"];
+echo $sql
+    return 12;//
 }

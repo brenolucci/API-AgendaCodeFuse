@@ -12,7 +12,7 @@ try {
 
     // Segue o baile
     // Gravar os dados
-    gravarContato($data);
+    gravarContato($params);
 
     // Monta o response
     $response = [
@@ -45,9 +45,7 @@ try {
 
 header('Content-type: application/json');
 http_response_code($statusCode);
-if (!empty($response)) {
-    echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-}
+echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
 /**
  * Executa a validação dos dados enviados pelo form
@@ -90,7 +88,7 @@ function validateRequestType(): bool
  */
 function validateRequest(array $postData): bool
 {
-    $requiredFields = ['nome', 'email', 'ddi', 'ddd', 'telefone'];
+    $requiredFields = ['nome', 'email', 'ddi', 'ddd'];
 
     $errors = [];
     foreach ($postData as $field => $value) {

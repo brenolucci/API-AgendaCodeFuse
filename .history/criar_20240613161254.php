@@ -6,13 +6,13 @@ $nome = $email = $ddi = $ddd = $telefone = "";
 $nome_err = $email_err = $ddi_err = $ddd_err = $telefone_err = "";
 
 try {
-    $data = json_decode(file_get_contents('php://input'), true);
-
-    validateData($data);
+    var_dump($_POST);
+    die;
+    validateData($_REQUEST);
 
     // Segue o baile
     // Gravar os dados
-    gravarContato($data);
+    gravarContato($params);
 
     // Monta o response
     $response = [
@@ -45,9 +45,7 @@ try {
 
 header('Content-type: application/json');
 http_response_code($statusCode);
-if (!empty($response)) {
-    echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-}
+echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
 /**
  * Executa a validação dos dados enviados pelo form
@@ -90,7 +88,7 @@ function validateRequestType(): bool
  */
 function validateRequest(array $postData): bool
 {
-    $requiredFields = ['nome', 'email', 'ddi', 'ddd', 'telefone'];
+    $requiredFields = ['nome', 'email',];
 
     $errors = [];
     foreach ($postData as $field => $value) {

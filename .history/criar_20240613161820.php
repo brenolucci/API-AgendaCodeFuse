@@ -16,7 +16,6 @@ try {
 
     // Monta o response
     $response = [
-        'error' => false,
         'message' => 'Dados gravados com sucesso!',
     ];
     $statusCode = 201;
@@ -45,9 +44,7 @@ try {
 
 header('Content-type: application/json');
 http_response_code($statusCode);
-if (!empty($response)) {
-    echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-}
+echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 
 /**
  * Executa a validação dos dados enviados pelo form

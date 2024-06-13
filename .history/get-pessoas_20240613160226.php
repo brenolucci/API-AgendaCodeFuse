@@ -33,11 +33,11 @@ try {
     $result = [
         'error' => true,
         'message' => $e->getMessage(),
-    ];
-
-} catch (\Exception $e) {
-    $statusCode = $e->getCode();
-    $result = [
+        ];
+        
+        } catch (\Exception $e) {
+        $statusCode = $e->getCode();
+        $result = [
         'error' => true,
         'message' => $e->getMessage(),
     ];
@@ -96,7 +96,7 @@ function getPagina(mysqli $conn): int
     }
 
     $totalPaginas = totalPaginas($conn);
-    if ($totalPaginas > 0 && $pagina > $totalPaginas) {
+    if ($pagina > $totalPaginas) {
         throw new InvalidArgumentException("Número da página deve terminar em {$totalPaginas}!", 422);
     }
 

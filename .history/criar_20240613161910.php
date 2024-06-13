@@ -15,10 +15,7 @@ try {
     gravarContato($data);
 
     // Monta o response
-    $response = [
-        'error' => false,
-        'message' => 'Dados gravados com sucesso!',
-    ];
+    $response = null;
     $statusCode = 201;
 
 } catch (\InvalidArgumentException $e) {

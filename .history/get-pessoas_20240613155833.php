@@ -29,14 +29,12 @@ try {
     ];
 
 } catch (\InvalidArgumentException $e) {
-    $statusCode = $e->getCode();
     $result = [
         'error' => true,
         'message' => $e->getMessage(),
     ];
 
 } catch (\Exception $e) {
-    $statusCode = $e->getCode();
     $result = [
         'error' => true,
         'message' => $e->getMessage(),
@@ -47,6 +45,7 @@ http_response_code($statusCode);
 echo json_encode($result);
 
 $conn->close();
+
 
 function validateQueryParams(array $params)
 {
@@ -96,7 +95,7 @@ function getPagina(mysqli $conn): int
     }
 
     $totalPaginas = totalPaginas($conn);
-    if ($totalPaginas > 0 && $pagina > $totalPaginas) {
+    if ($pagina > $totalPaginas) {
         throw new InvalidArgumentException("Número da página deve terminar em {$totalPaginas}!", 422);
     }
 
@@ -120,10 +119,10 @@ function getConditions(): string
         $conditions[] = 'email LIKE "%' . escapeParam($_GET['email']) . '%"';
     }
     if (!empty($_GET['ddi'])) {
-        $conditions[] = 'ddi = ' . escapeParam($_GET['ddi']);
+        $conditions[] = 'ddi LIKE "%' . escapeParam($_GET['ddi']) . '%"';
     }
     if (!empty($_GET['ddd'])) {
-        $conditions[] = 'ddd = ' . escapeParam($_GET['ddd']);
+        $conditions[] = 'ddd LIKE "%' . escapeParam($_GET['ddd']) . '%"';
     }
     if (!empty($_GET['telefone'])) {
         $conditions[] = 'telefone LIKE "%' . escapeParam($_GET['telefone']) . '%"';
