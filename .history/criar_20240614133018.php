@@ -156,7 +156,7 @@ function gravarContato(array $data): bool
     $sql = "INSERT INTO pessoas (nome, email, ddi, ddd, telefone) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
 
-    $stmt->bind_param('sssss', $data['nome'], $data['email'], $data['ddi'], $data['ddd'], $data['telefone']);
+    $stmt->bind_param('sssss', string $data['nome'], $data['email'], $data['ddi'], $data['ddd'], $data['telefone']);
 
     if ($stmt->execute()) {
         return true;

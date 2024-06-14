@@ -14,8 +14,10 @@ try {
 
     validateData($data);
 
+    // Gravar os dados
     gravarContato($data);
 
+    // Monta o response
     $response = [
         'error' => false,
         'message' => 'Dados gravados com sucesso!',
@@ -151,9 +153,9 @@ function getStatusCode(\Exception $e): int
  */
 function gravarContato(array $data): bool
 {
-    global $conn;
+    global $conn; // Assume que a conexão mysqli está na variável $conn do arquivo db.php
 
-    $sql = "INSERT INTO pessoas (nome, email, ddi, ddd, telefone) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO contatos (nome, email, ddi, ddd, telefone) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
 
     $stmt->bind_param('sssss', $data['nome'], $data['email'], $data['ddi'], $data['ddd'], $data['telefone']);

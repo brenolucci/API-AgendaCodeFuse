@@ -1,9 +1,5 @@
 <?php
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: *");
-header('Content-Type: application/json');
-
 include 'db.php';
 
 $nome = $email = $ddi = $ddd = $telefone = "";
@@ -14,8 +10,11 @@ try {
 
     validateData($data);
 
+    // Segue o baile
+    // Gravar os dados
     gravarContato($data);
 
+    // Monta o response
     $response = [
         'error' => false,
         'message' => 'Dados gravados com sucesso!',
@@ -29,7 +28,7 @@ try {
     ];
     $statusCode = getStatusCode($e);
 
-} catch (\PDOException $e) {
+} catch (\PDOException) {
     $response = [
         'error' => true,
         'message' => 'Erro gravando dados no banco: <br>' . $e->getMessage(),
@@ -94,14 +93,14 @@ function validateRequest(array $postData): bool
     $requiredFields = ['nome', 'email', 'ddi', 'ddd', 'telefone'];
 
     $errors = [];
-    foreach ($requiredFields as $field) {
-        if (empty($postData[$field])) {
-            $errors[] = "O campo {$field} é obrigatório!";
+    foreach ($postData as $field => $value) {
+        if (!in_array($field, $requiredFields)) {
+            $errors[] = "O campo {$field} não está na lista de campos permitidos!";
         }
     }
 
     if (!empty($errors)) {
-        throw new \InvalidArgumentException('Os seguintes erros foram encontrados!<br>' . implode('<br>', $errors), 422);
+        throw new \InvalidArgumentException('Os erros erros foram encontrados!<br>' . implode('<br>', $errors), 422);
     }
 
     return true;
@@ -143,24 +142,8 @@ function getStatusCode(\Exception $e): int
     return (empty($e->getCode()) || !is_numeric($e->getCode()) || $e->getCode() < 100 || $e->getCode() > 599) ? 400 : $e->getCode();
 }
 
-/**
- * Grava os dados no banco de dados
- *
- * @param array $data
- * @return bool
- */
 function gravarContato(array $data): bool
 {
-    global $conn;
-
-    $sql = "INSERT INTO pessoas (nome, email, ddi, ddd, telefone) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-
-    $stmt->bind_param('sssss', $data['nome'], $data['email'], $data['ddi'], $data['ddd'], $data['telefone']);
-
-    if ($stmt->execute()) {
-        return true;
-    } else {
-        throw new \PDOException('Erro ao inserir os dados no banco de dados');
-    }
+    $sql = "INSET INTO contatos (nome, email, ddi, ddd, telefone) VAULES ()"
+    return true;
 }

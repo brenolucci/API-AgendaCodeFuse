@@ -153,7 +153,7 @@ function gravarContato(array $data): bool
 {
     global $conn;
 
-    $sql = "INSERT INTO pessoas (nome, email, ddi, ddd, telefone) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO contatos (nome, email, ddi, ddd, telefone) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
 
     $stmt->bind_param('sssss', $data['nome'], $data['email'], $data['ddi'], $data['ddd'], $data['telefone']);

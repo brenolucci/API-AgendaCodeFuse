@@ -1,9 +1,5 @@
 <?php
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: *");
-header('Content-Type: application/json');
-
 include 'db.php';
 
 $nome = $email = $ddi = $ddd = $telefone = "";
@@ -14,8 +10,10 @@ try {
 
     validateData($data);
 
+    // Gravar os dados
     gravarContato($data);
 
+    // Monta o response
     $response = [
         'error' => false,
         'message' => 'Dados gravados com sucesso!',
@@ -94,9 +92,9 @@ function validateRequest(array $postData): bool
     $requiredFields = ['nome', 'email', 'ddi', 'ddd', 'telefone'];
 
     $errors = [];
-    foreach ($requiredFields as $field) {
-        if (empty($postData[$field])) {
-            $errors[] = "O campo {$field} é obrigatório!";
+    foreach ($postData as $field => $value) {
+        if (!in_array($field, $requiredFields)) {
+            $errors[] = "O campo {$field} não está na lista de campos permitidos!";
         }
     }
 
@@ -151,12 +149,16 @@ function getStatusCode(\Exception $e): int
  */
 function gravarContato(array $data): bool
 {
-    global $conn;
+    global $pdo; // Assume que a conexão PDO está na variável $pdo do arquivo db.php
 
-    $sql = "INSERT INTO pessoas (nome, email, ddi, ddd, telefone) VALUES (?, ?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
+    $sql = "INSERT INTO contatos (nome, email, ddi, ddd, telefone) VALUES (:nome, :email, :ddi, :ddd, :telefone)";
+    $stmt = $pdo->prepare($sql);
 
-    $stmt->bind_param('sssss', $data['nome'], $data['email'], $data['ddi'], $data['ddd'], $data['telefone']);
+    $stmt->bindParam(':nome', $data['nome']);
+    $stmt->bindParam(':email', $data['email']);
+    $stmt->bindParam(':ddi', $data['ddi']);
+    $stmt->bindParam(':ddd', $data['ddd']);
+    $stmt->bindParam(':telefone', $data['telefone']);
 
     if ($stmt->execute()) {
         return true;
